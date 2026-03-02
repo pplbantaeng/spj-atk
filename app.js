@@ -2,8 +2,9 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxVfGC_M4RuyUnS7jMaOlmP
 
 let db=[];
 let tbody=document.querySelector("#tabel tbody");
+let sedangKirim = false; // 🔒 anti klik berulang
 
-fetch("database_ppl.json")
+fetch("./database_ppl.json")
 .then(r=>r.json())
 .then(data=>{
 db=data.data;
@@ -63,7 +64,17 @@ document.getElementById("total").innerText=
 total.toLocaleString("id-ID");
 }
 
-async function kirimData(){
+async function kirimData(event){
+
+// 🔒 cegah klik berulang
+if(sedangKirim) return;
+sedangKirim = true;
+
+const tombol = event.target;
+tombol.disabled = true;
+tombol.innerText = "Menyimpan...";
+
+try {
 
 let total=parseInt(
 document.getElementById("total")
@@ -72,6 +83,7 @@ document.getElementById("total")
 
 if(total!==100000){
 alert("Total harus Rp100.000");
+resetTombol(tombol);
 return;
 }
 
@@ -106,9 +118,23 @@ body:JSON.stringify(data)
 
 let hasil=await res.json();
 
-if(hasil.status=="EXIST"){
+if(hasil.status==="EXIST"){
 alert("SPJ bulan ini sudah diinput");
 }else{
 alert("SPJ berhasil disimpan");
 }
+
+} catch(err){
+alert("Gagal mengirim data. Periksa koneksi.");
+console.error(err);
+}
+
+resetTombol(tombol);
+}
+
+// 🔄 reset tombol setelah proses
+function resetTombol(tombol){
+sedangKirim=false;
+tombol.disabled=false;
+tombol.innerText="SIMPAN SPJ";
 }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SPJ ATK PPL</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h2>SPJ ATK PENYULUH PERTANIAN</h2>
+
+<label>Nama Penyuluh</label>
+<select id="pplSelect"></select>
+
+<br><br>
+
+<label>NIP</label>
+<input id="nip" readonly>
+
+<br><br>
+
+<label>Desa</label>
+<input id="desa" readonly>
+
+<label>BPP</label>
+<input id="bpp" readonly>
+
+<label>Kecamatan</label>
+<input id="kecamatan" readonly>
+
+<hr>
+
+<table id="tabel">
+<thead>
+<tr>
+<th>No</th>
+<th>Barang</th>
+<th>Volume</th>
+<th>Satuan</th>
+<th>Harga</th>
+<th>Jumlah</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<button onclick="tambahBaris()">Tambah Barang</button>
+
+<h3>Total: Rp <span id="total">0</span></h3>
+
+<button onclick="kirimData()">SIMPAN SPJ</button>
+
+<script src="app.js"></script>
+
+</body>
+</html>

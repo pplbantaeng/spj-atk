@@ -1,0 +1,21 @@
+body{
+font-family:Arial;
+max-width:900px;
+margin:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid black;
+padding:6px;
+text-align:center;
+}
+
+input,select{
+padding:5px;
+margin:4px;
+}

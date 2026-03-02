@@ -64,13 +64,13 @@ document.getElementById("total").innerText=
 total.toLocaleString("id-ID");
 }
 
-async function kirimData(event){
+async function kirimData(){
 
 // 🔒 cegah klik berulang
 if(sedangKirim) return;
 sedangKirim = true;
 
-const tombol = event.target;
+const tombol = document.querySelector("button[onclick]");
 tombol.disabled = true;
 tombol.innerText = "Menyimpan...";
 
@@ -138,3 +138,4 @@ sedangKirim=false;
 tombol.disabled=false;
 tombol.innerText="SIMPAN SPJ";
 }
+

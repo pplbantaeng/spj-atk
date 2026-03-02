@@ -70,7 +70,7 @@ async function kirimData(){
 if(sedangKirim) return;
 sedangKirim = true;
 
-const tombol = document.querySelector("button[onclick]");
+const tombol = document.getElementById("btnSimpan");
 tombol.disabled = true;
 tombol.innerText = "Menyimpan...";
 
@@ -138,4 +138,5 @@ sedangKirim=false;
 tombol.disabled=false;
 tombol.innerText="SIMPAN SPJ";
 }
+
 

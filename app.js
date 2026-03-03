@@ -116,7 +116,9 @@ tombol.innerText="Menyimpan...";
 
 try{
 
+// ===============================
 // VALIDASI MINIMAL 1 LAMPIRAN
+// ===============================
 const inputs=["atk_dok","atk_nota","mm_dok","mm_nota"];
 let adaLampiran=false;
 
@@ -132,7 +134,9 @@ resetTombol(tombol);
 return;
 }
 
-// VALIDASI FILE & CONVERT
+// ===============================
+// VALIDASI & KONVERSI FILE
+// ===============================
 let filesData={};
 
 for(let id of inputs){
@@ -161,7 +165,9 @@ ext:file.name.split(".").pop()
 }
 }
 
+// ===============================
 // VALIDASI TOTAL
+// ===============================
 let total=parseInt(
 document.getElementById("total")
 .innerText.replace(/\./g,'')
@@ -173,7 +179,9 @@ resetTombol(tombol);
 return;
 }
 
+// ===============================
 // DATA BARANG
+// ===============================
 let items=[];
 [...tbody.rows].forEach(r=>{
 items.push({
@@ -185,7 +193,9 @@ jumlah:r.cells[5].innerText
 });
 });
 
-// KIRIM
+// ===============================
+// BUAT OBJECT DATA
+// ===============================
 let data={
 bulan:new Date().toISOString().slice(0,7),
 nama:pplSelect.options[pplSelect.selectedIndex].text.split(" - ")[0],
@@ -194,10 +204,17 @@ desa:desa.value,
 bpp:bpp.value,
 kecamatan:kecamatan.value,
 total:total,
-items:items,
-files:filesData
+items:items
 };
 
+// hanya kirim files jika ada isinya
+if(Object.keys(filesData).length>0){
+data.files = filesData;
+}
+
+// ===============================
+// FETCH KE APPS SCRIPT
+// ===============================
 let res=await fetch(API_URL,{
 method:"POST",
 body:JSON.stringify(data)
@@ -219,6 +236,7 @@ console.error(err);
 resetTombol(tombol);
 }
 
+// ===============================
 function resetTombol(tombol){
 sedangKirim=false;
 tombol.disabled=false;

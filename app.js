@@ -148,24 +148,47 @@ tombol.innerText="Menyimpan...";
 
 try{
 
+// ===============================
 // VALIDASI MINIMAL 1 LAMPIRAN
-const atkDok=document.getElementById("atk_dok").files.length;
-const atkNota=document.getElementById("atk_nota").files.length;
-const mmDok=document.getElementById("mm_dok").files.length;
-const mmNota=document.getElementById("mm_nota").files.length;
+// ===============================
+const atkDok = document.getElementById("atk_dok").files.length;
+const atkNota = document.getElementById("atk_nota").files.length;
+const mmDok = document.getElementById("mm_dok").files.length;
+const mmNota = document.getElementById("mm_nota").files.length;
 
 if(atkDok===0 && atkNota===0 && mmDok===0 && mmNota===0){
-alert("Minimal harus upload 1 lampiran (ATK atau Makan/Minum)");
-resetTombol(tombol);
-return;
+  alert("Minimal harus upload 1 lampiran (ATK atau Makan/Minum)");
+  resetTombol(tombol);
+  return;
 }
 
-// VALIDASI TOTAL
-let total=parseInt(
-document.getElementById("total")
-.innerText.replace(/\./g,'')
-);
+// ===============================
+// VALIDASI UKURAN FILE SAAT SIMPAN
+// ===============================
+const allInputs = ["atk_dok","atk_nota","mm_dok","mm_nota"];
 
+for(let id of allInputs){
+  const fileInput = document.getElementById(id);
+
+  if(fileInput.files.length > 0){
+    const file = fileInput.files[0];
+
+    if(file.size > MAX_SIZE){
+      alert("Ukuran file maksimal 2MB");
+      resetTombol(tombol);
+      return;
+    }
+  }
+}
+
+// ===============================
+// VALIDASI TOTAL
+// ===============================
+let total = parseInt(
+  document.getElementById("total")
+  .innerText.replace(/\./g,'')
+);
+  
 if(total!==100000){
 alert("Total harus Rp100.000");
 resetTombol(tombol);
@@ -222,3 +245,4 @@ sedangKirim=false;
 tombol.disabled=false;
 tombol.innerText="SIMPAN SPJ";
 }
+

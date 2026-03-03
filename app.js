@@ -2,10 +2,11 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxVfGC_M4RuyUnS7jMaOlmP
 
 let db=[];
 let tbody=document.querySelector("#tabel tbody");
-let sedangKirim = false;
+let sedangKirim=false;
+const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
 // ===============================
-// LOAD DATABASE PPL
+// LOAD DATABASE
 // ===============================
 fetch("./database_ppl.json")
 .then(r=>r.json())
@@ -36,7 +37,7 @@ kecamatan.value=p.kecamatan;
 }
 
 // ===============================
-// TABEL BARANG
+// TABEL
 // ===============================
 function tambahBaris(){
 let row=tbody.insertRow();
@@ -52,17 +53,13 @@ row.innerHTML=`
 }
 
 function hitung(){
-
 let total=0;
 
 [...tbody.rows].forEach(r=>{
-
 let vol=r.cells[2].children[0].value||0;
 let harga=r.cells[4].children[0].value||0;
-
 let jumlah=vol*harga;
 r.cells[5].innerText=jumlah;
-
 total+=jumlah;
 });
 
@@ -71,20 +68,17 @@ total.toLocaleString("id-ID");
 }
 
 // ===============================
-// VALIDASI & PREVIEW LAMPIRAN
+// VALIDASI FILE
 // ===============================
-const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+function validateFile(file,type){
 
-function validateFile(file, type){
-if(!file) return true;
-
-if(file.size > MAX_SIZE){
+if(file.size>MAX_SIZE){
 alert("Ukuran file maksimal 2MB");
 return false;
 }
 
 if(type==="image" && !file.type.startsWith("image/")){
-alert("File harus berupa gambar (jpg/png)");
+alert("File harus gambar (jpg/png)");
 return false;
 }
 
@@ -96,43 +90,17 @@ return false;
 return true;
 }
 
-function setupPreview(inputId, previewId, type){
-
-const input=document.getElementById(inputId);
-const preview=document.getElementById(previewId);
-
-input.addEventListener("change", function(){
-
-const file=this.files[0];
-if(!file) return;
-
-if(!validateFile(file,type)){
-this.value="";
-preview.style.display="none";
-preview.innerHTML="";
-return;
-}
-
-if(type==="image"){
+// ===============================
+// CONVERT FILE TO BASE64
+// ===============================
+function fileToBase64(file){
+return new Promise((resolve,reject)=>{
 const reader=new FileReader();
-reader.onload=function(e){
-preview.src=e.target.result;
-preview.style.display="block";
-}
+reader.onload=()=>resolve(reader.result.split(",")[1]);
+reader.onerror=reject;
 reader.readAsDataURL(file);
-}
-
-if(type==="pdf"){
-preview.innerHTML="📄 "+file.name;
-}
-
 });
 }
-
-setupPreview("atk_dok","preview_atk_dok","image");
-setupPreview("atk_nota","preview_atk_nota","pdf");
-setupPreview("mm_dok","preview_mm_dok","image");
-setupPreview("mm_nota","preview_mm_nota","pdf");
 
 // ===============================
 // KIRIM DATA
@@ -148,55 +116,65 @@ tombol.innerText="Menyimpan...";
 
 try{
 
-// ===============================
 // VALIDASI MINIMAL 1 LAMPIRAN
-// ===============================
-const atkDok = document.getElementById("atk_dok").files.length;
-const atkNota = document.getElementById("atk_nota").files.length;
-const mmDok = document.getElementById("mm_dok").files.length;
-const mmNota = document.getElementById("mm_nota").files.length;
+const inputs=["atk_dok","atk_nota","mm_dok","mm_nota"];
+let adaLampiran=false;
 
-if(atkDok===0 && atkNota===0 && mmDok===0 && mmNota===0){
-  alert("Minimal harus upload 1 lampiran (ATK atau Makan/Minum)");
-  resetTombol(tombol);
-  return;
+for(let id of inputs){
+if(document.getElementById(id).files.length>0){
+adaLampiran=true;
+}
 }
 
-// ===============================
-// VALIDASI UKURAN FILE SAAT SIMPAN
-// ===============================
-const allInputs = ["atk_dok","atk_nota","mm_dok","mm_nota"];
-
-for(let id of allInputs){
-  const fileInput = document.getElementById(id);
-
-  if(fileInput.files.length > 0){
-    const file = fileInput.files[0];
-
-    if(file.size > MAX_SIZE){
-      alert("Ukuran file maksimal 2MB");
-      resetTombol(tombol);
-      return;
-    }
-  }
+if(!adaLampiran){
+alert("Minimal harus upload 1 lampiran");
+resetTombol(tombol);
+return;
 }
 
-// ===============================
+// VALIDASI FILE & CONVERT
+let filesData={};
+
+for(let id of inputs){
+
+let input=document.getElementById(id);
+
+if(input.files.length>0){
+
+let file=input.files[0];
+
+let type=id.includes("dok")?"image":"pdf";
+
+if(!validateFile(file,type)){
+resetTombol(tombol);
+return;
+}
+
+let base64=await fileToBase64(file);
+
+filesData[id]={
+base64:base64,
+mimeType:file.type,
+ext:file.name.split(".").pop()
+};
+
+}
+}
+
 // VALIDASI TOTAL
-// ===============================
-let total = parseInt(
-  document.getElementById("total")
-  .innerText.replace(/\./g,'')
+let total=parseInt(
+document.getElementById("total")
+.innerText.replace(/\./g,'')
 );
-  
+
 if(total!==100000){
 alert("Total harus Rp100.000");
 resetTombol(tombol);
 return;
 }
 
+// DATA BARANG
 let items=[];
-
 [...tbody.rows].forEach(r=>{
 items.push({
 barang:r.cells[1].children[0].value,
@@ -207,6 +185,7 @@ jumlah:r.cells[5].innerText
 });
 });
 
+// KIRIM
 let data={
 bulan:new Date().toISOString().slice(0,7),
 nama:pplSelect.options[pplSelect.selectedIndex].text.split(" - ")[0],
@@ -215,8 +194,8 @@ desa:desa.value,
 bpp:bpp.value,
 kecamatan:kecamatan.value,
 total:total,
-lampiran:"",
-items:items
+items:items,
+files:filesData
 };
 
 let res=await fetch(API_URL,{
@@ -233,7 +212,7 @@ alert("SPJ berhasil disimpan");
 }
 
 }catch(err){
-alert("Gagal mengirim data.");
+alert("Gagal mengirim data");
 console.error(err);
 }
 
@@ -245,4 +224,3 @@ sedangKirim=false;
 tombol.disabled=false;
 tombol.innerText="SIMPAN SPJ";
 }
-

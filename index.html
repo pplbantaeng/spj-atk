@@ -49,11 +49,35 @@
 
 <h3>Total: Rp <span id="total">0</span></h3>
 
+<hr>
+
+<h3>Lampiran ATK</h3>
+
+<label>Foto Dokumentasi ATK (Max 2MB)</label><br>
+<input type="file" id="atk_dok" accept="image/jpeg,image/jpg,image/png"><br>
+<img id="preview_atk_dok" style="max-width:200px;display:none;margin-top:10px;"><br><br>
+
+<label>Nota ATK (PDF Max 2MB)</label><br>
+<input type="file" id="atk_nota" accept="application/pdf"><br>
+<div id="preview_atk_nota" style="margin-top:10px;color:blue;"></div>
+
+<hr>
+
+<h3>Lampiran Makan/Minum</h3>
+
+<label>Foto Dokumentasi Makan/Minum (Max 2MB)</label><br>
+<input type="file" id="mm_dok" accept="image/jpeg,image/jpg,image/png"><br>
+<img id="preview_mm_dok" style="max-width:200px;display:none;margin-top:10px;"><br><br>
+
+<label>Nota Makan/Minum (PDF Max 2MB)</label><br>
+<input type="file" id="mm_nota" accept="application/pdf"><br>
+<div id="preview_mm_nota" style="margin-top:10px;color:blue;"></div>
+
+<hr>
+
 <button id="btnSimpan" onclick="kirimData()">SIMPAN SPJ</button>
 
 <script src="app.js"></script>
 
 </body>
-
 </html>
-
